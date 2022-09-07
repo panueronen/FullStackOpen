@@ -1,0 +1,4 @@
+Sivu avautuu kuin edellinenkin mutta mukana tulee spa.js
+selain -> palvelimen sisältö
+palvelin -> selaimelle html sivu sekä js jonka avulla sivun sisältöä manipuloidaan.
+
