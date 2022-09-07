@@ -1,0 +1,5 @@
+Lomakkeen lähetä painiketta painetaan
+Selain-> palvelimelle HTTP POST pyynnön, jonka bodynä kentän teksti toimii.
+Palvelin -> selain uudelleenohjauspyyntö ja kehottaa selainta tekemään get pyynnön headerin ilmoittamaan paikkaan.
+->
+selain lataa sivun uudestaan

@@ -1,0 +1,5 @@
+Nappulaa painetaan.
+Selain -> palvelimelle POST pyynnön jossa on contenttina JSON tyyppinen uusi muistiinpano ja päivämäärä.
+Pyynnön HEADER kertoo mitä contenttia siinä on mukana.
+Palvelin -> selaimelle 201 status.
+Selain luo uuden muistiinpanon ja piirtää sen elementtiin refreshaamatta sivua.
