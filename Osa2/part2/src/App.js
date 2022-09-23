@@ -1,17 +1,23 @@
-import React from 'react'
-import { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import axios from 'axios'
 
 
 const App = (props) => {
-  const [persons, setPersons] = useState([
-    { name: 'Arto Hellas', number: '040-123456' },
-    { name: 'Ada Lovelace', number: '39-44-5323523' },
-    { name: 'Dan Abramov', number: '12-43-234345' },
-    { name: 'Mary Poppendieck', number: '39-23-6423122' }
-  ]) 
+  const [persons, setPersons] = useState([]) 
   const [newName, setNewName] = useState('')
   const[newNumber, setNewNumber] = useState('')
   const [filter, setFilter] = useState('')
+
+  useEffect(() => {
+    console.log('effect')
+    axios
+      .get('http://localhost:3001/persons')
+      .then(response => {
+        console.log('promise fulfilled')
+        setPersons(response.data)
+      })
+  }, [])
+  console.log('render', persons.length, 'notes')
 
   const addPerson = (event) => {
     event.preventDefault()
