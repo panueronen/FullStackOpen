@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import axios from 'axios'
+import services from './services'
+import './index.css'
 
 
 const App = (props) => {
@@ -7,17 +8,16 @@ const App = (props) => {
   const [newName, setNewName] = useState('')
   const[newNumber, setNewNumber] = useState('')
   const [filter, setFilter] = useState('')
+  const[errorMessage, setErrorMessage] = useState('')
 
   useEffect(() => {
     console.log('effect')
-    axios
-      .get('http://localhost:3001/persons')
+    services
+      .getAll()
       .then(response => {
-        console.log('promise fulfilled')
-        setPersons(response.data)
+        setPersons(persons.concat(response.data))
       })
   }, [])
-  console.log('render', persons.length, 'notes')
 
   const addPerson = (event) => {
     event.preventDefault()
@@ -25,11 +25,29 @@ const App = (props) => {
       name: newName,
       number: newNumber
     }
+
     if (persons.some(e => e.name === newName)) {
-      alert(`${newName} is already added to phonebook`)
+      const persontoedit = persons.find(obj => {
+        return obj.name===newName
+      })
+      if(window.confirm(`${newName} is already on the phonebook. Would you like to update the number`)){
+        services.update(persontoedit.id,personObject).then(response => {
+          setPersons(persons.map( person => person.id !== persontoedit.id ? person: response.data))
+        })
+      }
     }else{
-      setPersons(persons.concat(personObject))
-    event.target.reset()
+      services
+      .create(personObject)
+      .then(response => {
+        setPersons(persons.concat(response.data))
+        setErrorMessage(`Person ${newName} Added to phonebook`)
+        setNewName('')
+        setNewNumber('')
+        setTimeout(() => {
+          setErrorMessage(null)
+        }, 5000)
+
+      })
     }
 
   }
@@ -51,13 +69,26 @@ const App = (props) => {
 
   return (
     <div>
+      <Notification message={errorMessage} />
       <h2>Phonebook</h2>
       <FilterInput filter={filter} handleFilterChange={handleFilterChange}/>
       <Personform addPerson={addPerson} newName={newName} handleNameChange={handleNameChange} newNumber={newNumber} handleNumberChange={handleNumberChange}/>
-      <FilteredList persons={persons} filter={filter}/>
+      <FilteredList persons={persons} filter={filter} setPersons={setPersons} setErrorMessage={setErrorMessage} />
     </div>
   )
 
+}
+
+const Notification = ({ message }) => {
+  if (message === null) {
+    return null
+  }
+
+  return (
+    <div className="error">
+      {message}
+    </div>
+  )
 }
 
 const FilterInput = (props) => {
@@ -89,15 +120,24 @@ return(
 }
 
 const FilteredList = (props) => {
-
+  let{setPersons, persons, setErrorMessage} = props
   let filtered = props.persons.filter( person => person.name.includes(props.filter) )
-  
   return(
     <div>
     <h2>Numbers</h2>
     <ul>
         {filtered.map(person =>
-        <li key={person.name}>{person.name} {person.number}</li>)}
+        <li key={person.name}>{person.name} {person.number} <button onClick={() => {
+          if(window.confirm(`Are you sure you want to delete ${person.name}`)){
+            services.destroy(person.id).then(
+              setPersons(persons.filter(per =>{
+              return per.id!==person.id
+          })))
+          .catch(error => setErrorMessage(`${person.name} was already removed from server`))
+              
+            }
+          }
+          } >Delete</button></li>)}
       </ul>
       </div>
   )
